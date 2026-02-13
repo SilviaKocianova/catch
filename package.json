@@ -1,0 +1,14 @@
+{
+  "name": "catch-my-heart",
+  "version": "1.0.0",
+  "description": "A Valentine's Day 2D platformer",
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --outfile=dist/bundle.js --target=es2020",
+    "dev": "esbuild src/main.ts --bundle --outfile=dist/bundle.js --target=es2020 --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.3",
+    "typescript": "^5.9.3"
+  }
+}

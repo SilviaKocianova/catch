@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catch My Heart 💕</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital@0;1&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1a0a0f;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Crimson Pro', serif;
+    overflow: hidden;
+  }
+
+  #ui-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  #start-screen, #win-screen {
+    pointer-events: all;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    background: rgba(20, 5, 10, 0.92);
+    border: 1px solid rgba(255,120,150,0.3);
+    border-radius: 4px;
+    padding: 50px 60px;
+    box-shadow: 0 0 80px rgba(255,80,100,0.15), inset 0 0 40px rgba(255,60,80,0.04);
+    max-width: 500px;
+    text-align: center;
+  }
+
+  #win-screen { display: none; }
+  #game-over-screen { display: none; }
+
+  .screen-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    color: #ff8fa3;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    text-shadow: 0 0 40px rgba(255,100,130,0.5);
+  }
+
+  .screen-subtitle {
+    font-size: 1.15rem;
+    color: rgba(255,180,190,0.7);
+    font-style: italic;
+    line-height: 1.6;
+    padding-left: 20px;
+  }
+
+  .controls-hint {
+    font-size: 1rem;
+    color: rgba(255,150,170,0.6);
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+
+  .key-badge {
+    display: inline-block;
+    background: rgba(255,100,130,0.15);
+    border: 1px solid rgba(255,100,130,0.3);
+    border-radius: 3px;
+    padding: 1px 7px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: #ff8fa3;
+  }
+
+  #start-btn, #retry-btn {
+    margin-top: 10px;
+    background: transparent;
+    border: 1px solid rgba(255,110,140,0.5);
+    color: #ff8fa3;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    padding: 12px 36px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+  }
+
+  #start-btn:hover, #retry-btn:hover {
+    background: rgba(255,100,130,0.1);
+    border-color: rgba(255,110,140,0.9);
+    box-shadow: 0 0 20px rgba(255,100,130,0.2);
+    color: #ffb3c1;
+  }
+
+  .win-message {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-style: italic;
+    color: rgba(255,200,210,0.9);
+    line-height: 1.7;
+    max-width: 380px;
+  }
+
+  .big-heart {
+    font-size: 5rem;
+    animation: heartbeat 0.8s ease-in-out infinite;
+    display: block;
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  #canvas-container {
+    position: relative;
+    border: 1px solid rgba(255,100,130,0.2);
+    box-shadow: 0 0 60px rgba(255,60,80,0.1);
+  }
+
+  canvas { display: block; }
+
+  #hud {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,160,180,0.7);
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    font-style: italic;
+    pointer-events: none;
+    z-index: 50;
+    transition: opacity 0.3s;
+    opacity: 0;
+  }
+
+  #minimap {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,100,130,0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  #minimap-player {
+    position: absolute;
+    top: 1px;
+    width: 8px;
+    height: 8px;
+    background: #ff8fa3;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    transition: left 0.1s;
+  }
+
+  #minimap-heart {
+    position: absolute;
+    top: 1px;
+    width: 8px;
+    height: 8px;
+    background: #ff3060;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    transition: left 0.1s;
+  }
+
+  #minimap-end {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 8px;
+    color: rgba(255,200,210,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div id="canvas-container">
+  <canvas id="gameCanvas"></canvas>
+</div>
+
+<div id="hud">chase it... ♡</div>
+<div id="minimap">
+  <div id="minimap-player"></div>
+  <div id="minimap-heart"></div>
+  <span id="minimap-end">♡</span>
+</div>
+
+<div id="ui-overlay">
+  <div id="start-screen">
+    <span class="screen-title">Catch My Heart</span>
+    <p class="screen-subtitle">A little heart is waiting for you —<br>but it won't come easy.</p>
+    <p class="controls-hint">
+      <span class="key-badge">W</span>&nbsp;
+      <span class="key-badge">A</span>&nbsp;
+      <span class="key-badge">S</span>&nbsp;
+      <span class="key-badge">D</span>&nbsp;
+      to move &nbsp;·&nbsp; chase the heart to the end
+    </p>
+    <button id="start-btn">Begin ♡</button>
+  </div>
+
+  <div id="win-screen">
+    <span class="big-heart">💕</span>
+    <span class="screen-title">My heart belongs to you now.</span>
+    <p class="win-message" id="win-message">
+      KRÁSNÝ VALENTÝN<br>
+      Daní. ♡
+    </p>
+  </div>
+
+  <div id="game-over-screen">
+    <span style="font-size:4rem; display:block; animation: heartbeat 0.5s ease-in-out infinite; padding-right: 10px">😨</span>
+    <span class="screen-title" style="color:#e07030; text-shadow: 0 0 40px rgba(224,112,48,0.5);">NOM NOM!</span>
+    <p class="screen-subtitle">Luisinka tě láskou snědla...<br>jump next time!</p>
+  </div>
+</div>
+
+<script src="dist/bundle.js"></script>
+</body>
+</html>
